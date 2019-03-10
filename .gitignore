@@ -1,0 +1,9 @@
+# Ignore all files
+*
+
+# Unignore specific extensions
+!*.md
+!*.c
+
+# Unignore directories
+!*/

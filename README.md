@@ -1,6 +1,14 @@
+# TD n°5 - Manipulation de fichiers
+
+Cliquez sur le lien ci-dessous pour faire votre fork privé du TP (attention, pas de fork à la main !) :
+
+https://classroom.github.com/a/b7Foc_H4
+
+L'objectif de ce TD est de vous familiariser avec l'utilisation des appels système `fork` (création de processus) et la famille `exec` (exécution du code d'un exécutable).
+
 ## Exercice 1. Copie du processus courant
 	
-On considère le programme suivant (`ex1.c`) :
+On considère le programme suivant (`ex1fork.c`) :
 ```cpp
 #include <sys/types.h>
 #include <unistd.h>
@@ -29,7 +37,7 @@ int main(int argc, char **argv) {
 	
 	**Indication :** Combien de processus sont en cours, quels sont leurs parents ?
 
-    On considère maintenant le programme suivant (`prog2.c`) :
+    On considère maintenant le programme suivant (`ex2tab.c`) :
     ```cpp
     #include <stdio.h>
     #include <stdlib.h>
@@ -56,7 +64,8 @@ int main(int argc, char **argv) {
     		}
     		sleep(1);
     	}
-    }```
+    }
+    ``
 
 1. Que fait ce programme ?
 
@@ -64,18 +73,52 @@ int main(int argc, char **argv) {
 	
 	**Indication :** Il faut chercher comment trouver le code de retour d'un processus dans la documentation de `waitpid`.
 
-1. Modifiez le programme pour que chacun des fils affiche les valeurs de `tabpid[0]`, `tabpid[1]` et `tabpid[2]`. Observez ce qui se passe lors de l'exécution. Comment l'expliquez-vous ?
+1. Modifiez le programme pour que chacun des fils affiche les trois valeurs contenues dans le tableau `tabpid` avant de terminer. Observez ce qui se passe lors de l'exécution. Comment l'expliquez-vous ?
 
-1. Reprenez le programme `negatif` écrit au TD 4. Rajouttez un appel à `fork` juste après avoir recopié l'en-tête du fichier, puis faites en sorte que le processus père génère le négatif de l'image tandis que le fils recopie l'image sans la modifier. Observez le fichier obtenu. Comment expliquez-vous cela ?
+1. Reprenez le programme `negative.c` écrit au TD 4. Rajouttez un appel à `fork` juste après avoir recopié l'en-tête du fichier, puis faites en sorte que le processus père génère le négatif de l'image tandis que le fils recopie l'image sans la modifier. Observez le fichier obtenu. Comment expliquez-vous cela ?
 
 1. Exécutez le même programme avec une image en couleur. Expliquez le résultat.
 
 ## Exercice 2. Exécution
 
-1. En utilisant la fonction `execlp`, écrivez un programme qui exécute la commande `ps -l`.
+1. En utilisant la fonction `execlp`, écrivez le programme `ex2psl.c` qui exécute la commande `ps -l` lorsqu'on le lance.
 	
 	**Indication :** Il faut appeler la commande `execlp` pour remplacer le code du processus courant par celui de la commande `ps`, tout en lui donnant les bons arguments pour lui passer l'option `-l`.
 
-1. Écrivez un programme `lancer.c` qui se clone à l'aide de l'appel `fork` et dont le processus fils exécute l'exécutable passé en paramètres avec ses arguments. Par exemple l'appel `./lancer ls -l *` doit exécuter la commande `ls -l *`.
+1. Écrivez le programme `ex2lancer.c` qui se clone à l'aide de l'appel `fork` et dont le processus fils exécute l'exécutable passé en paramètres avec ses arguments. Par exemple l'appel `./lancer ls -l *` doit exécuter la commande `ls -l *`. Le père doit attendre la fin de l'exécution du fils avant de terminer.
 	
 	**Indication :** Il faut utiliser l'appel `fork` puis utiliser une des commandes de la famille `exec` pour remplacer le code du processus fils par celui du programme passé en argument, en lui transmettant également tous les autres arguments.
+
+## Exercice 3 (Bonus). Tubes
+
+L'appel système `pipe` permet de créer un *tube anonyme* (ou *pipe* en anglais). La commande renvoie deux descripteurs de fichiers, l'un permettant d'écrire des octets dans le tube (avec `write`) et l'autre permettant de lire les octets dans le tube (avec `read`).
+
+L'intérêt principal d'un tube anomnyme est de permettre à deux processus apparentés d'échanger des données. En effet, si un tube est créé par un processus avant de faire un appel à `fork`, les deux processus résultants (le père et le fils) ont accès au tube par l'intermédiaire des descripteurs de fichiers.
+
+1. Regardez la documentation de l'appel système `pipe` (`man 2 pipe`) pour comprendre comment il s'utilise (vous pouvez aussi chercher des exemples)
+
+1. Regardez le programme `ex3pipe.c`. Que fait-il ?
+
+    On veut maintenant reproduire à l'aide des tubes anonymes le comportement du *shell* lorsqu'il reçoit deux instructions séparées par le caractère `|` (redirection de la sortie standard de la première commande vers l'entrée standard de la seconde commande). L'idée est de
+    - créer un tube ;
+    - lancer les deux processus qui vont exécuter chacune des commandes ;
+    - remplacer la sortie standard du premier processus par l'entrée du tube ;
+    - remplacer l'entrée standard du second processus par la sortie du tube ;
+    - utiliser la commande `exec` pour que chacun des deux processus exécute la commande souhaitée
+    
+    (les fichiers ouverts et les descripteurs de fichiers sont conservés lors de l'appel à `exec`)
+
+1. Quels sont les descripteurs de fichiers correspondant à l'entrée standard et la sortie standard d'un processus ?
+
+1. Écrivez le programme `ex3tube.c` qui prend en argument :
+    - le nom (éventuellement avec un chemin) d'un exécutable
+    - une liste d'options pour ce premier exécutable
+    - la chaîne de caractères «`--pipe`»
+    - le nom (ou chemin) d'un second exécutable
+    - les options du deuxième exécutable
+    
+    et lance deux processus fils, exécutant chacun des deux exécutables passés en argument avec leurs options respectives en redirigeant la sortie standard du premier vers l'entrée standard du second.
+    
+    Par exemple, la commande `./tube ls -R --pipe grep toto` doit afficher toutes les lignes du résultat de la commande `ls -R` qui contiennent «`toto`» (ça doit faire la même chose que la commande `ls -R | grep toto`).
+    
+    **Indications :** Regardez la documentation des fonctions `dup` et `dup2`, qui permettent d'assigner une valeur spécifique de descripteur de fichier à un fichier ouvert.
