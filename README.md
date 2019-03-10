@@ -1,4 +1,4 @@
-##Exercice 1. Copie du processus courant
+## Exercice 1. Copie du processus courant
 	
 On considère le programme suivant (`ex1.c`) :
 ```cpp
