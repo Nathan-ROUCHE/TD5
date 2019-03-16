@@ -112,10 +112,10 @@ On veut maintenant reproduire à l'aide des tubes anonymes le comportement du *s
 3. Quels sont les descripteurs de fichiers correspondant à l'entrée standard et la sortie standard d'un processus ?
 
 1. Écrivez le programme `ex3tube.c` qui prend en argument :
-    - le nom (éventuellement avec un chemin) d'un exécutable
+    - le nom d'un exécutable
     - une liste d'options pour ce premier exécutable
     - la chaîne de caractères «`--pipe`»
-    - le nom (ou chemin) d'un second exécutable
+    - le nom d'un second exécutable
     - les options du deuxième exécutable
     
     et lance deux processus fils, exécutant chacun des deux exécutables passés en argument avec leurs options respectives en redirigeant la sortie standard du premier vers l'entrée standard du second.
@@ -128,7 +128,7 @@ On veut maintenant reproduire à l'aide des tubes anonymes le comportement du *s
     - Les commandes qui travaillent sur l'entrée standard (comme par exemple `grep`) se terminent lorsque leur entrée est fermée. Si votre programme ne se termine pas correctement, vérifiez que votre programme ferme bien **tous** les descripteurs de fichiers qui correspondent à l'entrée du second processus.
 
 1. Écrivez le programme `ex3redirections.c` qui prend en argument :
-    - le nom (éventuellement avec un chemin) d'un exécutable
+    - le nom d'un exécutable
     - une liste d'options pour cet exécutable
     - (optionnel) `--input` suivi d'un nom de fichier
     - (optionnel) `--output` suivi d'un nom de fichier
