@@ -19,9 +19,9 @@ int main(int argc, char **argv) {
     printf("PID: %d (avant fork)\n", getpid());
     i = fork();
     if (i != 0) {
-        printf("père PID: %d, résultat du fork: %d\n",getpid(),i);
+        printf("PID: %d, résultat du fork: %d\n",getpid(),i);
     } else {
-        printf("fils PID: %d, résultat du fork: %d \n",getpid(),i);
+        printf("PID: %d, résultat du fork: %d \n",getpid(),i);
     }
     printf("PID: %d (après fork)\n", getpid());
 }
@@ -37,37 +37,37 @@ int main(int argc, char **argv) {
 	
 	**Indication :** Combien de processus sont en cours, quels sont leurs parents ?
 
-    On considère maintenant le programme suivant (`ex2tab.c`) :
-    ```cpp
-    #include <stdio.h>
-    #include <stdlib.h>
-    #include <unistd.h>
-    #include <sys/types.h>
-    #include <sys/wait.h>
+On considère maintenant le programme suivant (`ex1tab.c`) :
+```cpp
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 
-    int main(int argc, char **argv) {
-    	int i, j, s, tabpid[3];
-    	printf("[avant fork] PID: %d\n", getpid());
-    	for(j = 0; j < 3; j++) {
-    		tabpid[j] = fork();
-    		if (tabpid[j] != 0 ) {
-    			printf("[père] PID: %d, retour fork: %d \n",getpid(),tabpid[j]);
-    		} else {
-    			printf("[fils] PID: %d \n",getpid());
-    			exit(j);
-    		}
-    	}
-    	for(j = 0; j < 3; j++) {
-    		i= waitpid(tabpid[j], &s, 0);
-    		if (i > 0) {
-    			printf("terminé PID: %d\n", i);
-    		}
-    		sleep(1);
-    	}
+int main(int argc, char **argv) {
+    int i, j, s, tabpid[3];
+    printf("[avant fork] PID: %d\n", getpid());
+    for(j = 0; j < 3; j++) {
+        tabpid[j] = fork();
+        if (tabpid[j] != 0 ) {
+            printf("PID: %d, retour fork: %d \n",getpid(),tabpid[j]);
+        } else {
+            printf("PID: %d \n",getpid());
+            exit(j);
+        }
     }
-    ``
+    for(j = 0; j < 3; j++) {
+        i= waitpid(tabpid[j], &s, 0);
+        if (i > 0) {
+            printf("terminé PID: %d\n", i);
+        }
+        sleep(1);
+    }
+}   
+```
 
-1. Que fait ce programme ?
+4. Que fait ce programme ?
 
 1. Que récupère la variable `s` ? Modifiez le programme pour qu'il affiche le code de retour de chacun des processus fils.
 	
@@ -85,7 +85,7 @@ int main(int argc, char **argv) {
 	
 	**Indication :** Il faut appeler la commande `execlp` pour remplacer le code du processus courant par celui de la commande `ps`, tout en lui donnant les bons arguments pour lui passer l'option `-l`.
 
-1. Écrivez le programme `ex2lancer.c` qui se clone à l'aide de l'appel `fork` et dont le processus fils exécute l'exécutable passé en paramètres avec ses arguments. Par exemple l'appel `./lancer ls -l *` doit exécuter la commande `ls -l *`. Le père doit attendre la fin de l'exécution du fils avant de terminer.
+1. Écrivez le programme `ex2lancer.c` qui crée un nouveau processus à l'aide de `fork` et dont le processus fils exécute l'exécutable passé en paramètres avec ses arguments. Par exemple l'appel `./lancer ls -l *` doit exécuter la commande `ls -l *`. Le père doit attendre la fin de l'exécution du fils avant de terminer.
 	
 	**Indication :** Il faut utiliser l'appel `fork` puis utiliser une des commandes de la famille `exec` pour remplacer le code du processus fils par celui du programme passé en argument, en lui transmettant également tous les autres arguments.
 
@@ -99,16 +99,17 @@ L'intérêt principal d'un tube anomnyme est de permettre à deux processus appa
 
 1. Regardez le programme `ex3pipe.c`. Que fait-il ?
 
-    On veut maintenant reproduire à l'aide des tubes anonymes le comportement du *shell* lorsqu'il reçoit deux instructions séparées par le caractère `|` (redirection de la sortie standard de la première commande vers l'entrée standard de la seconde commande). L'idée est de
-    - créer un tube ;
-    - lancer les deux processus qui vont exécuter chacune des commandes ;
-    - remplacer la sortie standard du premier processus par l'entrée du tube ;
-    - remplacer l'entrée standard du second processus par la sortie du tube ;
-    - utiliser la commande `exec` pour que chacun des deux processus exécute la commande souhaitée
-    
-    (les fichiers ouverts et les descripteurs de fichiers sont conservés lors de l'appel à `exec`)
+On veut maintenant reproduire à l'aide des tubes anonymes le comportement du *shell* lorsqu'il reçoit deux instructions séparées par le caractère `|` (redirection de la sortie standard de la première commande vers l'entrée standard de la seconde commande). L'idée est de
 
-1. Quels sont les descripteurs de fichiers correspondant à l'entrée standard et la sortie standard d'un processus ?
+- créer un tube ;
+- lancer les deux processus qui vont exécuter chacune des commandes ;
+- remplacer la sortie standard du premier processus par l'entrée du tube ;
+- remplacer l'entrée standard du second processus par la sortie du tube ;
+- utiliser la commande `exec` pour que chacun des deux processus exécute la commande souhaitée
+
+(les fichiers ouverts et les descripteurs de fichiers sont conservés lors de l'appel à `exec`)
+
+3. Quels sont les descripteurs de fichiers correspondant à l'entrée standard et la sortie standard d'un processus ?
 
 1. Écrivez le programme `ex3tube.c` qui prend en argument :
     - le nom (éventuellement avec un chemin) d'un exécutable
