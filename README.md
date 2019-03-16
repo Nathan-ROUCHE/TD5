@@ -85,11 +85,11 @@ int main(int argc, char **argv) {
 	
 	**Indication :** Il faut appeler la commande `execlp` pour remplacer le code du processus courant par celui de la commande `ps`, tout en lui donnant les bons arguments pour lui passer l'option `-l`.
 
-1. Écrivez le programme `ex2lancer.c` qui crée un nouveau processus à l'aide de `fork` et dont le processus fils exécute l'exécutable passé en paramètres avec ses arguments. Par exemple l'appel `./lancer ls -l *` doit exécuter la commande `ls -l *`. Le père doit attendre la fin de l'exécution du fils avant de terminer.
+1. Écrivez le programme `ex2lancer.c` qui crée un nouveau processus à l'aide de `fork` et dont le processus fils exécute l'exécutable passé en paramètres avec ses arguments. Par exemple l'appel `./a.out ls -l *` doit exécuter la commande `ls -l *`. Le père doit attendre la fin de l'exécution du fils avant de terminer.
 	
 	**Indication :** Il faut utiliser l'appel `fork` puis utiliser une des commandes de la famille `exec` pour remplacer le code du processus fils par celui du programme passé en argument, en lui transmettant également tous les autres arguments.
 
-## Exercice 3. Tubes
+## Exercice 3. Tubes et redirections
 
 L'appel système `pipe` permet de créer un *tube anonyme* (ou *pipe* en anglais). La commande renvoie deux descripteurs de fichiers, l'un permettant d'écrire des octets dans le tube (avec `write`) et l'autre permettant de lire les octets dans le tube (avec `read`).
 
@@ -120,6 +120,21 @@ On veut maintenant reproduire à l'aide des tubes anonymes le comportement du *s
     
     et lance deux processus fils, exécutant chacun des deux exécutables passés en argument avec leurs options respectives en redirigeant la sortie standard du premier vers l'entrée standard du second.
     
-    Par exemple, la commande `./tube ls -R --pipe grep toto` doit afficher toutes les lignes du résultat de la commande `ls -R` qui contiennent «`toto`» (ça doit faire la même chose que la commande `ls -R | grep toto`).
+    Par exemple, la commande `./a.out ls -R --pipe grep toto` doit afficher toutes les lignes du résultat de la commande `ls -R` qui contiennent «`toto`» (ça doit faire la même chose que la commande `ls -R | grep toto`).
     
-    **Indications :** Regardez la documentation des fonctions `dup` et `dup2`, qui permettent d'assigner une valeur spécifique de descripteur de fichier à un fichier ouvert.
+    **Remarques :**
+    - Regardez la documentation des fonctions `dup` et `dup2`, qui permettent d'assigner une valeur spécifique de descripteur de fichier à un fichier ouvert.
+    - Le processus père doit lancer deux fils. En utilisant les fonctions `wait` ou `waitpid` assurez-vous que le père termine après ses fils.
+    - Les commandes qui travaillent sur l'entrée standard (comme par exemple `grep`) se terminent lorsque leur entrée est fermée. Si votre programme ne se termine pas correctement, vérifiez que votre programme ferme bien **tous** les descripteurs de fichiers qui correspondent à l'entrée du second processus.
+
+1. Écrivez le programme `ex3redirections.c` qui prend en argument :
+    - le nom (éventuellement avec un chemin) d'un exécutable
+    - une liste d'options pour cet exécutable
+    - (optionnel) `--input` suivi d'un nom de fichier
+    - (optionnel) `--output` suivi d'un nom de fichier
+    
+    et lance un processus fils qui exécute l'exécutable passé en argument avec les options correspondantes. Si le programme a reçu l'option `--input` il faut rediriger l'entrée du processus fils vers le fichier indiqué après l'option, et s'il a reçu l'option `--output` il faut rediriger sa sortie vers le fichier correspondant.
+    
+    Par exemple la commande `./a.out ls -R --output result.txt` doit créer un fichier `result.txt` contenant le résultat de `ls -R` (équivalent à `ls -R > result.txt` dans le shell) et la commande `./a.out grep toto --input fichier.txt` doit afficher toutes les lignes du fichier `fichier.txt` contenant «`toto`» (équivalent à `grep toto < fichier.txt` dans un shell).
+    
+    **Indications :** Il faut ouvrir les fichiers correspondants en lecture ou écriture et rediriger l'entrée ou la sortie du processus fils vers les descripteurs obtenus, comme à la question précédente.
