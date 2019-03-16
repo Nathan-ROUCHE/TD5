@@ -89,7 +89,7 @@ int main(int argc, char **argv) {
 	
 	**Indication :** Il faut utiliser l'appel `fork` puis utiliser une des commandes de la famille `exec` pour remplacer le code du processus fils par celui du programme passé en argument, en lui transmettant également tous les autres arguments.
 
-## Exercice 3 (Bonus). Tubes
+## Exercice 3. Tubes
 
 L'appel système `pipe` permet de créer un *tube anonyme* (ou *pipe* en anglais). La commande renvoie deux descripteurs de fichiers, l'un permettant d'écrire des octets dans le tube (avec `write`) et l'autre permettant de lire les octets dans le tube (avec `read`).
 
