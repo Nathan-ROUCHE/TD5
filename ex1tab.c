@@ -21,6 +21,30 @@ int main(int argc, char **argv) {
         if (i > 0) {
             printf("terminé PID: %d\n", i);
         }
-        sleep(1);
+        //sleep(1);
     }
 }
+
+/* prof: 
+
+int main(int argc, char **argv) {
+    int i, j, s, tabpid[3];
+    printf("[avant fork] PID: %d\n", getpid());
+    for(j = 0; j < 3; j++) {
+        tabpid[j] = fork();
+        if (tabpid[j] != 0 ) {
+            printf("PID: %d, retour fork: %d \n",getpid(),tabpid[j]);
+        } else {
+            printf("PID: %d \n",getpid());
+            printf("%d %d %d\n", tabpid[0], tabpid[1], tabpid[2]);
+            exit(j);
+        }
+    }
+    for(j = 0; j < 3; j++) {
+        i= waitpid(tabpid[j], &s, 0);
+        if (i > 0) {
+            printf("terminé PID: %d (%d)\n", i, WEXITSTATUS(s));
+        }
+        sleep(1);
+    }
+}*/
